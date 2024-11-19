@@ -2,12 +2,11 @@ package com.github.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +14,9 @@ import org.springframework.stereotype.Component;
 public class NettyServidor implements CommandLineRunner {
 
     private final int port;
+
+    @Autowired
+    private NettyServerInitializer nettyServerInitializer;
 
     public NettyServidor(int port) {
         this.port = port;
@@ -33,12 +35,7 @@ public class NettyServidor implements CommandLineRunner {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
             serverBootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        public void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new TransacaoHandler());
-                        }
-                    })
+                    .childHandler(nettyServerInitializer)
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 

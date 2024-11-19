@@ -1,11 +1,7 @@
 package com.github.models;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -15,40 +11,52 @@ public class Transacao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String tipoTransacao; // Ex: débito, crédito, transferência
-    private Double valor;
-    private LocalDateTime dataTransacao;
+    @Enumerated(EnumType.STRING)
+    private TipoTransacao tipoTransacao;
 
-    private String status; // Ex: pendente, concluída, falha
+    @Enumerated(EnumType.STRING)
+    private StatusTransacao status;
+
+    private BigDecimal valor;
+
+    private LocalDateTime dataTransacao;
 
     public Transacao() {
     }
 
-    public Transacao(Long id, String tipoTransacao, Double valor, LocalDateTime dataTransacao,  String status) {
+    public Transacao(Long id, TipoTransacao tipoTransacao, StatusTransacao status, BigDecimal valor, LocalDateTime dataTransacao) {
         this.id = id;
         this.tipoTransacao = tipoTransacao;
+        this.status = status;
         this.valor = valor;
         this.dataTransacao = dataTransacao;
-        this.status = status;
     }
 
     public Long getId() {
         return id;
     }
 
-    public String getTipoTransacao() {
+    public TipoTransacao getTipoTransacao() {
         return tipoTransacao;
     }
 
-    public void setTipoTransacao(String tipoTransacao) {
+    public void setTipoTransacao(TipoTransacao tipoTransacao) {
         this.tipoTransacao = tipoTransacao;
     }
 
-    public Double getValor() {
+    public StatusTransacao getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusTransacao status) {
+        this.status = status;
+    }
+
+    public BigDecimal getValor() {
         return valor;
     }
 
-    public void setValor(Double valor) {
+    public void setValor(BigDecimal valor) {
         this.valor = valor;
     }
 
@@ -59,15 +67,4 @@ public class Transacao {
     public void setDataTransacao(LocalDateTime dataTransacao) {
         this.dataTransacao = dataTransacao;
     }
-
-
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }
-

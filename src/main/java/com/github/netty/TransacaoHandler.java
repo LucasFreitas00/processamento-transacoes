@@ -1,5 +1,9 @@
 package com.github.netty;
 
+import com.github.models.StatusTransacao;
+import com.github.models.TipoTransacao;
+import com.github.models.Transacao;
+import com.github.repository.TransacaoRepository;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -7,14 +11,20 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOMsg;
 import org.jpos.iso.packager.GenericPackager;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 
 @Component
 public class TransacaoHandler extends ChannelInboundHandlerAdapter {
 
     private GenericPackager packager;
+
+    @Autowired
+    private TransacaoRepository transacaoRepository;
 
     public TransacaoHandler() {
         try {
@@ -60,6 +70,14 @@ public class TransacaoHandler extends ChannelInboundHandlerAdapter {
                 ctx.writeAndFlush(responseBuffer).addListener(ChannelFutureListener.CLOSE);
 
                 System.out.println("Resposta ISO 8583 enviada: " + new String(responseBytes, StandardCharsets.UTF_8));
+
+                Transacao transacao = new Transacao();
+                transacao.setTipoTransacao(TipoTransacao.DEBITO);
+                transacao.setStatus(StatusTransacao.CONCLUIDA);
+                transacao.setValor(BigDecimal.valueOf(Double.parseDouble(isoMsg.getString(4))));
+                transacao.setDataTransacao(LocalDateTime.now());
+
+                transacaoRepository.save(transacao);
             } else {
                 System.out.println("Código de processamento inválido.");
             }
