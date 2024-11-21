@@ -1,11 +1,12 @@
 package com.github.netty;
 
-import com.github.models.StatusTransacao;
-import com.github.models.TipoTransacao;
-import com.github.models.Transacao;
-import com.github.repository.TransacaoRepository;
+import com.github.models.StatusPagamento;
+import com.github.models.MetodoPagamento;
+import com.github.models.Pagamento;
+import com.github.repository.PagamentoRepository;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.jpos.iso.ISOException;
@@ -19,14 +20,15 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 @Component
-public class TransacaoHandler extends ChannelInboundHandlerAdapter {
+@Sharable
+public class PagamentoHandler extends ChannelInboundHandlerAdapter {
 
     private GenericPackager packager;
 
     @Autowired
-    private TransacaoRepository transacaoRepository;
+    private PagamentoRepository pagamentoRepository;
 
-    public TransacaoHandler() {
+    public PagamentoHandler() {
         try {
             // Carrega a configuração do ISO 8583
             packager = new GenericPackager("src/main/resources/iso8583.xml");
@@ -63,6 +65,15 @@ public class TransacaoHandler extends ChannelInboundHandlerAdapter {
                 responseMsg.set(3, processingCode); // Código de processamento (echo)
                 responseMsg.set(39, "00"); // Código de resposta de sucesso
 
+                // Salvar o pagamento no banco de dados
+                Pagamento pagamento = new Pagamento();
+                pagamento.setMetodoPagamento(MetodoPagamento.DEBITO);
+                pagamento.setStatus(StatusPagamento.CONCLUIDO);
+                pagamento.setValor(BigDecimal.valueOf(Double.parseDouble(isoMsg.getString(4))));
+                pagamento.setData(LocalDateTime.now());
+
+                pagamentoRepository.save(pagamento);
+
                 // Empacotar e enviar a resposta
                 byte[] responseBytes = responseMsg.pack();
                 ByteBuf responseBuffer = byteBuf.alloc().buffer(responseBytes.length);
@@ -70,14 +81,6 @@ public class TransacaoHandler extends ChannelInboundHandlerAdapter {
                 ctx.writeAndFlush(responseBuffer).addListener(ChannelFutureListener.CLOSE);
 
                 System.out.println("Resposta ISO 8583 enviada: " + new String(responseBytes, StandardCharsets.UTF_8));
-
-                Transacao transacao = new Transacao();
-                transacao.setTipoTransacao(TipoTransacao.DEBITO);
-                transacao.setStatus(StatusTransacao.CONCLUIDA);
-                transacao.setValor(BigDecimal.valueOf(Double.parseDouble(isoMsg.getString(4))));
-                transacao.setDataTransacao(LocalDateTime.now());
-
-                transacaoRepository.save(transacao);
             } else {
                 System.out.println("Código de processamento inválido.");
             }

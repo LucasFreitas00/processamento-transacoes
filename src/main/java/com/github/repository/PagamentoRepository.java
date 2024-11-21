@@ -1,9 +1,9 @@
 package com.github.repository;
 
-import com.github.models.Transacao;
+import com.github.models.Pagamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TransacaoRepository extends JpaRepository<Transacao, Long> {
+public interface PagamentoRepository extends JpaRepository<Pagamento, Long> {
 }

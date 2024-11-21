@@ -8,14 +8,14 @@ import io.netty.channel.socket.SocketChannel;
 @Component
 public class NettyServerInitializer extends ChannelInitializer<SocketChannel> {
 
-    private final TransacaoHandler transacaoHandler;
+    private final PagamentoHandler pagamentoHandler;
 
     public NettyServerInitializer(ApplicationContext context) {
-        this.transacaoHandler = context.getBean(TransacaoHandler.class);
+        this.pagamentoHandler = context.getBean(PagamentoHandler.class);
     }
 
     @Override
     protected void initChannel(SocketChannel ch) throws Exception {
-        ch.pipeline().addLast(transacaoHandler);
+        ch.pipeline().addLast(pagamentoHandler);
     }
 }
