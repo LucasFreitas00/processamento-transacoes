@@ -1,5 +1,7 @@
 package com.github.netty;
 
+import com.github.dto.PagamentoDTO;
+import com.github.kafka.PagamentoRequestProducer;
 import com.github.models.StatusPagamento;
 import com.github.models.MetodoPagamento;
 import com.github.models.Pagamento;
@@ -27,6 +29,9 @@ public class PagamentoHandler extends ChannelInboundHandlerAdapter {
 
     @Autowired
     private PagamentoRepository pagamentoRepository;
+
+    @Autowired
+    private PagamentoRequestProducer pagamentoRequestProducer;
 
     public PagamentoHandler() {
         try {
@@ -73,6 +78,13 @@ public class PagamentoHandler extends ChannelInboundHandlerAdapter {
                 pagamento.setData(LocalDateTime.now());
 
                 pagamentoRepository.save(pagamento);
+
+                PagamentoDTO pagamentoDTO = new PagamentoDTO();
+                pagamentoDTO.setNumero(pagamento.getId());
+                pagamentoDTO.setValor(pagamento.getValor());
+                pagamentoDTO.setDescricao("Pagamento de compra no " + pagamento.getMetodoPagamento());
+
+                pagamentoRequestProducer.sendMessage(pagamentoDTO);
 
                 // Empacotar e enviar a resposta
                 byte[] responseBytes = responseMsg.pack();
