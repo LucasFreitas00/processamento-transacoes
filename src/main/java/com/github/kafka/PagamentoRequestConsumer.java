@@ -11,6 +11,6 @@ public class PagamentoRequestConsumer {
             groupId = "pagamento-request-consumer-1"
     )
     public void consume(String mensagem) {
-        System.out.println("Mensagem recebida: " + mensagem);
+        System.out.println("Consumindo tópico de pagamento: " + mensagem);
     }
 }

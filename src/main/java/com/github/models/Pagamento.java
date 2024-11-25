@@ -21,15 +21,23 @@ public class Pagamento {
 
     private LocalDateTime data;
 
-    public Pagamento() {
-    }
+    @ManyToOne
+    @JoinColumn(name = "conta_origem_id")
+    private Conta contaOrigem;
 
-    public Pagamento(Long id, MetodoPagamento metodoPagamento, StatusPagamento status, BigDecimal valor, LocalDateTime data) {
-        this.id = id;
+    @ManyToOne
+    @JoinColumn(name = "conta_destino_id")
+    private Conta contaDestino;
+
+    public Pagamento() {}
+
+    public Pagamento(MetodoPagamento metodoPagamento, StatusPagamento status, BigDecimal valor, LocalDateTime data, Conta contaOrigem, Conta contaDestino) {
         this.metodoPagamento = metodoPagamento;
         this.status = status;
         this.valor = valor;
         this.data = data;
+        this.contaOrigem = contaOrigem;
+        this.contaDestino = contaDestino;
     }
 
     public Long getId() {
@@ -66,5 +74,21 @@ public class Pagamento {
 
     public void setData(LocalDateTime data) {
         this.data = data;
+    }
+
+    public Conta getContaOrigem() {
+        return contaOrigem;
+    }
+
+    public void setContaOrigem(Conta contaOrigem) {
+        this.contaOrigem = contaOrigem;
+    }
+
+    public Conta getContaDestino() {
+        return contaDestino;
+    }
+
+    public void setContaDestino(Conta contaDestino) {
+        this.contaDestino = contaDestino;
     }
 }

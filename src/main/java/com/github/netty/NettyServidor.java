@@ -34,10 +34,10 @@ public class NettyServidor implements CommandLineRunner {
         try {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
             serverBootstrap.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .childHandler(nettyServerInitializer)
-                    .option(ChannelOption.SO_BACKLOG, 128)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true);
+                .channel(NioServerSocketChannel.class)
+                .childHandler(nettyServerInitializer)
+                .option(ChannelOption.SO_BACKLOG, 128)
+                .childOption(ChannelOption.SO_KEEPALIVE, true);
 
             ChannelFuture future = serverBootstrap.bind(port).sync();
             future.channel().closeFuture().sync();
